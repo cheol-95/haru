@@ -3,7 +3,7 @@ create TABLE sns     (
     user_id		    INT UNSIGNED 	NOT NULL	,
     sns             VARCHAR(30)     NOT NULL    ,
     sns_id          VARCHAR(200)    NOT NULL    ,
-    access_token    VARCHAR(255)    NOT NULL    ,
+    access_token    VARCHAR(500)    NOT NULL    ,
     created_at	    TIMESTAMP		NOT NULL	DEFAULT CURRENT_TIMESTAMP,
     modified_at	    TIMESTAMP		NULL		DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
     removed_at	    TIMESTAMP		NULL		DEFAULT NULL,

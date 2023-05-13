@@ -18,8 +18,6 @@ const checkNickname = async (nickname, user_id) => {
         AND NOT id = ?`;
     const [checkRows] = await conn.query(checkSql, [nickname, user_id]);
     return checkRows;
-  } catch (err) {
-    throw databaseError(err);
   } finally {
     await conn.release();
   }
@@ -34,8 +32,6 @@ const checkEmail = async (email) => {
       WHERE email = ?`;
     const [checkRows] = await conn.query(checkSql, [email]);
     return checkRows;
-  } catch (err) {
-    throw databaseError(err);
   } finally {
     await conn.release();
   }
@@ -85,9 +81,7 @@ const login = async (sns, snsId, email, nickname, accessToken) => {
 
     conn.commit();
     return userId;
-  } catch (err) {
     conn.rollback();
-    throw databaseError(err);
   } finally {
     await conn.release();
   }
@@ -104,8 +98,6 @@ const getUser = async (id) => {
       WHERE id = ?`;
     const [userData] = await conn.query(userSql, [id]);
     return userData;
-  } catch (err) {
-    throw databaseError(err);
   } finally {
     await conn.release();
   }
@@ -120,8 +112,6 @@ const updateUser = async (id, updateData) => {
       WHERE id = ?`;
     const [updateRows] = await conn.query(updateSql, [toSnake(updateData), [id]]);
     return updateRows;
-  } catch (err) {
-    throw databaseError(err);
   } finally {
     await conn.release();
   }
@@ -141,8 +131,6 @@ const logout = async (id) => {
 
       WHERE user_id = ?`;
     await conn.query(flushAccessTokenSql, [id]);
-  } catch (err) {
-    throw databaseError(err);
   } finally {
     await conn.release();
   }
@@ -158,9 +146,6 @@ const updateAccessToken = async (id, sns, accessToken) => {
         AND sns = ?`;
     const [updateRows] = await conn.query(updateSql, [accessToken, id, sns]);
     return updateRows;
-  } catch (err) {
-    console.log('err: ', err);
-    throw databaseError(err);
   } finally {
     await conn.release();
   }
@@ -187,14 +172,10 @@ const withdraw = async (id, email, password) => {
         const user = firebase.auth().currentUser;
         user.delete();
       })
-      .catch((err) => {
-        throw firebaseError(err);
       });
     conn.commit();
     return withdrawRows;
-  } catch (err) {
     conn.rollback();
-    throw err;
   } finally {
     await conn.release();
   }
@@ -209,8 +190,6 @@ const verifiedCheck = async (userData) => {
       WHERE ?`;
     const [checkRows] = await conn.query(checkSql, userData);
     return checkRows;
-  } catch (err) {
-    throw databaseError(err);
   } finally {
     await conn.release();
   }
@@ -243,15 +222,9 @@ const emailVerificationHandler = async (email) => {
         const [userRows] = await conn.query(userSql, [email]);
         return userRows;
       })
-      .catch((err) => {
-        throw firebaseError(err);
       });
     return result;
-  } catch (err) {
-    if (err.status) {
-      throw firebaseError(err);
     } else {
-      throw databaseError(err);
     }
   } finally {
     await conn.release();
@@ -267,8 +240,6 @@ const checkRefreshToken = async (refreshToken) => {
       WHERE refresh_token = ?`;
     const [checkRows] = await conn.query(checkSql, [refreshToken]);
     return checkRows;
-  } catch (err) {
-    throw databaseError(err);
   } finally {
     await conn.release();
   }
@@ -291,8 +262,6 @@ const updateEmail = async (id, email) => {
         email,
         emailVerified: false,
       })
-      .catch((err) => {
-        throw firebaseError(err);
       });
 
     const updateSql = `
@@ -303,12 +272,8 @@ const updateEmail = async (id, email) => {
 
     conn.commit();
     return updateRows;
-  } catch (err) {
     conn.rollback();
-    if (err.status) {
-      throw err;
     }
-    throw databaseError(err);
   } finally {
     await conn.release();
   }
@@ -322,8 +287,6 @@ const getAddress = async () => {
       FROM address`;
     const [addressRows] = await conn.query(addressSql);
     return addressRows;
-  } catch (err) {
-    throw databaseError(err);
   } finally {
     await conn.release();
   }
@@ -337,8 +300,6 @@ const clearPushToken = async (pushToken) => {
       SET push_token = ?
       WHERE push_token = ?`;
     await conn.query(clearSql, ['', pushToken]);
-  } catch (err) {
-    throw databaseError(err);
   } finally {
     await conn.release();
   }

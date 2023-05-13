@@ -1,6 +1,5 @@
 class AuthError extends Error {
   constructor(err) {
-    console.log('err: ', err);
     super();
     this.result = false;
     this.code = err.code;
