@@ -29,11 +29,6 @@ const getUser = async (req, res) => {
   response(res, 200, userData);
 };
 
-const updateUserImage = async (req, res) => {
-  await userService.updateUserImage(req.params, req.body, req.file);
-  response(res, 200, '회원정보가 수정되었습니다');
-};
-
 const updateUser = async (req, res) => {
   await userService.updateUser(req.params, req.body);
   response(res, 200, '회원정보가 수정되었습니다');
@@ -99,12 +94,12 @@ module.exports = {
   signup,
   login,
   getUser,
-  updateUserImage,
   updateUser,
   updateEmail,
   updateAlert,
   updateAccessToken,
   updatePushToken,
+
   checkNickname,
   checkEmail,
   withdraw,
