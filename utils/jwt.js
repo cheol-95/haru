@@ -15,8 +15,8 @@ const verifyRefreshToken = (token) => {
   }
 };
 
-const getJwt = ({ id, nickname }) => {
-  const payload = { id, nickname };
+const getJwt = ({ userId }) => {
+  const payload = { userId };
   // options.expiresIn = Number(process.env.JWT_accessExpire);
   // options.subject = 'userInfo-access';
   return jwt.sign(payload, secretKey, options);
