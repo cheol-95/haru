@@ -1,0 +1,11 @@
+create TABLE notice (
+    id			INT UNSIGNED	NOT NULL	AUTO_INCREMENT PRIMARY KEY,
+    user_id		INT UNSIGNED 	NOT NULL	,
+    content     VARCHAR(255)    NOT NULL    ,
+    is_read     TINYINT(1)         NOT NULL    DEFAULT 0,
+    created_at	TIMESTAMP		NOT NULL	DEFAULT CURRENT_TIMESTAMP,
+    modified_at	TIMESTAMP		NULL		DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+    removed_at	TIMESTAMP		NULL		DEFAULT NULL,
+
+    INDEX user_id_index (user_id) USING BTREE
+);
