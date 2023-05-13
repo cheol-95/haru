@@ -3,7 +3,6 @@ const path = require('path');
 const firebase = require('firebase');
 
 const userDao = require('../dao/user');
-const studyDao = require('../dao/study');
 const { toBoolean, parsingAddress } = require('../utils/query');
 const { verifyRefreshToken, getAccessToken, getRefreshToken, getPayload } = require('../utils/jwt.js');
 const { customError } = require('../utils/errors/custom');
@@ -105,7 +104,6 @@ const updatePushToken = async ({ id }, updateData) => {
 
 const withdraw = async ({ id }, { email, password }) => {
   const previousPath = await userDao.getImage(id);
-  const studyList = await studyDao.getMyStudy(id);
   if (studyList.length > 0) {
     throw customError(400, '가입한 스터디를 탈퇴하고 다시 시도하세요');
   }

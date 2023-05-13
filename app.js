@@ -1,7 +1,6 @@
 const express = require('express');
 const cookieParser = require('cookie-parser');
 const morgan = require('morgan');
-const passport = require('passport');
 
 const router = require('./routes');
 const { verify } = require('./middlewares/auth');
@@ -19,9 +18,6 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(parseRequest);
 app.use(verify);
-
-require('./utils/passport')();
-app.use(passport.initialize());
 
 app.use('/', router);
 // app.use(express.static(__dirname + '/../public'));

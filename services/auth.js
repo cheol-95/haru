@@ -3,7 +3,6 @@ const path = require('path');
 const firebase = require('firebase');
 
 const userDao = require('../dao/user');
-const studyDao = require('../dao/study');
 const { toBoolean, parsingAddress } = require('../utils/query');
 const { verifyRefreshToken, getAccessToken, getRefreshToken, getPayload } = require('../utils/jwt.js');
 const { customError } = require('../utils/errors/custom');

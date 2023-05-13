@@ -1,5 +1,5 @@
 const adminDao = require('../dao/admin');
-const studyDao = require('../dao/study');
+// const studyDao = require('../dao/study');
 
 const studyService = require('./study');
 
