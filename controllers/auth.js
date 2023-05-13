@@ -15,7 +15,7 @@ const { getJwt } = require('../utils/jwt')
 
 const login = async (req, res) => {
   const userId = await authService.login(req.body);
-  const jwt = getJwt({ userId})
+  const jwt = getJwt({ id: userId})
   response(res, 201, { userId, jwt });
 };
 
