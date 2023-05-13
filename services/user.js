@@ -46,11 +46,12 @@ const getUser = async ({ id }) => {
 };
 
 const updateUser = async ({ id }, updateData) => {
-  const checkRows = await userDao.checkNickname(updateData.nickname, id);
-  if (checkRows.length) {
-    throw customError(400, '중복된 닉네임이 존재합니다');
-  }
-
+  // if (updateData.nickname) {
+  //   const checkRows = await userDao.checkNickname(updateData.nickname, id);
+  //   if (checkRows.length) {
+  //     throw customError(400, '중복된 닉네임이 존재합니다');
+  //   }
+  // }
   const updateRows = await userDao.updateUser(id, updateData);
   if (updateRows.affectedRows === 0) {
     throw customError(404, '조회된 사용자가 없습니다');

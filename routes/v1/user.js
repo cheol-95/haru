@@ -35,7 +35,7 @@ router.get('/:id', asyncWrap(userController.getUser));
 // router.put('/:id/sns', idCompare, userValid.userSnsUpdate, asyncWrap(userController.updateUser));
 // router.put('/:id/location', idCompare, userValid.userLocationUpdate, asyncWrap(userController.updateUser));
 // router.put('/:id/email', idCompare, userValid.updateEmail, asyncWrap(userController.updateEmail));
-// router.put('/:id/alert', idCompare, userValid.updateAlert, asyncWrap(userController.updateAlert));
+router.put('/:id/alert', idCompare, userValid.updateAlert, asyncWrap(userController.updateAlert));
 router.put('/:id/accessToken', idCompare, userValid.updateAccessToken, asyncWrap(userController.updateAccessToken));
 router.put('/:id/pushToken', idCompare, userValid.updatePushToken, asyncWrap(userController.updatePushToken));
 
