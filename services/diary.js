@@ -63,10 +63,12 @@ const deleteDiary = async ({ id: user_id }, { id: diaryId }) => {
   }
 };
 
+// TODO: 이거부터 만들고!
 const convertDateRange = (date) => {
   return { start: '어제일 00:00:00', end: '당일 23:59:59' };
 }
 
+// TODO: 이거 작업해야 함.
 const getHaru = async ({ id: user_id }, { date }) => {
   const result = {
     todayDiary: 1,

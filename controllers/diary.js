@@ -1,5 +1,4 @@
 const diaryService = require('../services/diary');
-const diaryService = require('../services/diary');
 const response = require('../utils/response');
 // const { makeAlert } = require('../utils/makeAlert');
 
