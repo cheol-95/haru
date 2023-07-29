@@ -16,7 +16,6 @@ const diaryController = require('../../controllers/diary');
 const router = express.Router();
 
 router.get('/:id', diaryValid.getDiary, asyncWrap(diaryController.getDiary));
-
 router.post('/', diaryValid.createDiary, asyncWrap(diaryController.createDiary));
 
 // router.put('/:id/alert', idCompare, diaryValid.updateAlert, asyncWrap(diaryController.updateAlert));

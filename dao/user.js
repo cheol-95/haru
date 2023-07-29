@@ -138,7 +138,6 @@ const logout = async (id) => {
     const flushAccessTokenSql = `
       UPDATE sns
       SET access_token = ''
-
       WHERE user_id = ?`;
     await conn.query(flushAccessTokenSql, [id]);
   } catch (err) {
