@@ -21,10 +21,7 @@ const createDiary = async ({ id: user_id }, { content }) => {
 
 const getCommentsOfDiary = async (diaryId) => {
   const comments = await commentDao.getCommentsOfDiary(diaryId);
-  if (comments.length === 0) {
-    throw customError(404, '조회된 다이어리가 없습니다.');
-  }
-  return comments;
+  return comments.length > 0 ? comments: [];
 }
 
 const getDiary = async ({ id: user_id }, { id: diaryId }) => {

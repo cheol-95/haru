@@ -11,12 +11,12 @@ const getDiary = async (user_id, diaryId) => {
   const conn = await pool.getConnection();
   try {
     await conn.beginTransaction();
-    const selectSql = `
+    const sql = `
       SELECT *
       FROM diary
       WHERE user_id = ?
         AND id = ?`;
-    const [selectRows] = await conn.query(selectSql, [ user_id, diaryId ]);
+    const [selectRows] = await conn.query(sql, [ user_id, diaryId ]);
     await conn.commit();
     return selectRows;
   } catch (err) {
