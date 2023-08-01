@@ -1,4 +1,6 @@
 // const firebase = require('firebase');
+const { parse, format, utcToZonedTime } = require('date-fns');
+
 
 const diaryDao = require('../dao/diary');
 const commentDao = require('../dao/comment');
@@ -45,7 +47,7 @@ const updateDiary = async ({ id: user_id }, { id: diaryId }, { content }) => {
     throw customError(400, '업데이트에 실패했습니다.');
   }
 
-  return { id: diaryId, content }
+  return { id: +diaryId, content }
 };
 
 const deleteDiary = async ({ id: user_id }, { id: diaryId }) => {
@@ -62,24 +64,34 @@ const deleteDiary = async ({ id: user_id }, { id: diaryId }) => {
 
 // TODO: 이거부터 만들고!
 const convertDateRange = (date) => {
-  return { start: '어제일 00:00:00', end: '당일 23:59:59' };
+  const startTime = utcToZonedTime(parse(`${date} 00:00:00`, 'yyyy-MM-dd HH:mm:ss', new Date()), 'Asia/Seoul');
+  const endTime = utcToZonedTime(parse(`${date} 23:59:59`, 'yyyy-MM-dd HH:mm:ss', new Date()), 'Asia/Seoul');
+
+  return { 
+    start: format(startTime, 'yyyy-MM-dd HH:mm:ss', { timeZone: 'UTC' }),
+    end: format(endTime, 'yyyy-MM-dd HH:mm:ss', { timeZone: 'UTC' })
+  };
 }
 
 // TODO: 이거 작업해야 함.
 const getHaru = async ({ id: user_id }, { date }) => {
   const result = {
-    todayDiary: 1,
-    yesterdayDiary: 2,
-    someoneYesterday: [3, 4, 5],
-    someoneToday: [5, 6, 7]
+    todayDiary: 1, // optional
+    yesterdayDiary: 2, // optional
+    someoneYesterday: [3, 4, 5], // optional
+    someoneToday: [5, 6, 7] // optional
   };
   
-  const dateRange = convertDateRange(date);
-  const diaries = await diaryDao.getDiaryFromDate(user_id, dateRange);
+  const { start, end } = convertDateRange(date);
+  
+  const diaries = await diaryDao.getDiaryFromDate(user_id, start, end);
   if (diaries.length === 0) {
     throw customError(404, '조회된 다이어리가 없습니다.');
   }
-  diary.comments = await getCommentsOfDiary(diary.id);
+  for (const diary of diaries) {
+    diary.comments = await getCommentsOfDiary(diary.id);
+  }
+    
   return diary;
 };
 

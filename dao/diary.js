@@ -82,7 +82,7 @@ const deleteDiary = async (diaryId) => {
   }
 };
 
-const getDiaryFromDate = async (user_id, { start, end }) => {
+const getDiaryFromDate = async (user_id, start, end) => {
   const conn = await pool.getConnection();
   try {
     await conn.beginTransaction();
@@ -90,8 +90,8 @@ const getDiaryFromDate = async (user_id, { start, end }) => {
       SELECT *
       FROM diary
       WHERE user_id = ?
-        AND created_at BETWEEN ? AND ?`;
-    const [selectRows] = await conn.query(selectSql, [ user_id, start, end ]);
+      AND created_at BETWEEN ? AND ?`;
+      const [selectRows] = await conn.query(selectSql, [ user_id, start, end ]);
     await conn.commit();
     return selectRows;
   } catch (err) {
