@@ -6,6 +6,12 @@ const checkVersion = async (req, res) => {
   response(res, 200, result);
 };
 
+const getCalender = async (req, res) => {
+  const calender = await commonService.getCalender(req.user);
+  response(res, 200, { calender });
+};
+
 module.exports = {
   checkVersion,
+  getCalender
 };

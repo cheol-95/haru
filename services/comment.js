@@ -18,7 +18,6 @@ const getCommentsOfDiary = async (diaryId) => {
   return selectRows;
 }
 
-
 module.exports = {
   getCommentsOfDiary
 };

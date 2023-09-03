@@ -32,6 +32,15 @@ const getDiaryByUserId = async (user_id) => {
       FROM diary
       WHERE user_id = ?`;
     const [diaryRows] = await conn.query(sql, [ user_id ]);
+    
+    // const sql_ = `SELECT @@global.time_zone;`
+    // const [diaryRows_] = await conn.query(sql_, [ user_id ]);
+    // console.log('diaryRows_: ', diaryRows_);
+    
+    // const sql__ = `SELECT @@session.time_zone;`;
+    // const [diaryRows__] = await conn.query(sql__, [ user_id ]);
+    // console.log('diaryRows__: ', diaryRows__);
+
     return diaryRows;
   } catch (err) {
     throw databaseError(err);
