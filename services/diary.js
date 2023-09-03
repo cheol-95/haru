@@ -1,6 +1,5 @@
 // const firebase = require('firebase');
-const { parse, format, utcToZonedTime } = require('date-fns');
-
+const { subDays, set, format } = require('date-fns');
 
 const diaryDao = require('../dao/diary');
 const commentDao = require('../dao/comment');
@@ -12,7 +11,17 @@ const { customError } = require('../utils/errors/custom');
 
 // const { RedisEventEnum, PushEventEnum } = require('../utils/variables/enum');
 
+const ensureFirstCreateDiary = async (user_id) => {
+  const { start, end } = convertDateRange(new Date())
+  const diary = await diaryDao.getDiaryFromDate(user_id, start, end);
+  if (diary.length) {
+    throw customError(400, '오늘은 이미 다이어리를 작성했어요');
+  }
+}
+
 const createDiary = async ({ id: user_id }, { content }) => {
+  await ensureFirstCreateDiary(user_id);
+
   const createRow = await diaryDao.createDiary({ user_id, content });
   if (createRow.affectedRows === 0) {
     throw customError(400, '생성에 실패했습니다.');
@@ -62,24 +71,27 @@ const deleteDiary = async ({ id: user_id }, { id: diaryId }) => {
   }
 };
 
-// TODO: 이거부터 만들고!
+// UTC로 리턴함
 const convertDateRange = (date) => {
-  const startTime = utcToZonedTime(parse(`${date} 00:00:00`, 'yyyy-MM-dd HH:mm:ss', new Date()), 'Asia/Seoul');
-  const endTime = utcToZonedTime(parse(`${date} 23:59:59`, 'yyyy-MM-dd HH:mm:ss', new Date()), 'Asia/Seoul');
+  const todayStartUTC = set(date, { hours: 15, minutes: 0, seconds: 0 });
+  const yesterdayStartUTC = subDays(todayStartUTC, 1);
+  const todayEndUTC = set(date, { hours: 14, minutes: 59, seconds: 59 });
 
-  return { 
-    start: format(startTime, 'yyyy-MM-dd HH:mm:ss', { timeZone: 'UTC' }),
-    end: format(endTime, 'yyyy-MM-dd HH:mm:ss', { timeZone: 'UTC' })
-  };
+  const start = format(yesterdayStartUTC, 'yyyy-MM-dd HH:mm:ss');
+  const end = format(todayEndUTC, 'yyyy-MM-dd HH:mm:ss');
+  return { start, end };
 }
 
 // TODO: 이거 작업해야 함.
 const getHaru = async ({ id: user_id }, { date }) => {
+  console.log('\n\n ## getHaru',);
+  console.log('date: ', date);
   const result = {
-    todayDiary: 1, // optional
-    yesterdayDiary: 2, // optional
-    someoneYesterday: [3, 4, 5], // optional
-    someoneToday: [5, 6, 7] // optional
+    today_diary_id: 1, // optional
+    yesterday_diary_id: 2, // optional
+    
+    someone_yesterday_ids: [3, 4, 5], // optional
+    someone_today_ids: [5, 6, 7] // optional
   };
   
   const { start, end } = convertDateRange(date);

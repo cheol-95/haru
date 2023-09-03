@@ -10,17 +10,30 @@ const { databaseError } = require('../utils/errors/database');
 const getDiary = async (user_id, diaryId) => {
   const conn = await pool.getConnection();
   try {
-    await conn.beginTransaction();
     const sql = `
       SELECT *
       FROM diary
       WHERE user_id = ?
         AND id = ?`;
     const [selectRows] = await conn.query(sql, [ user_id, diaryId ]);
-    await conn.commit();
     return selectRows;
   } catch (err) {
-    await conn.rollback();
+    throw databaseError(err);
+  } finally {
+    await conn.release();
+  }
+};
+
+const getDiaryByUserId = async (user_id) => {
+  const conn = await pool.getConnection();
+  try {
+    const sql = `
+      SELECT *
+      FROM diary
+      WHERE user_id = ?`;
+    const [diaryRows] = await conn.query(sql, [ user_id ]);
+    return diaryRows;
+  } catch (err) {
     throw databaseError(err);
   } finally {
     await conn.release();
@@ -85,17 +98,14 @@ const deleteDiary = async (diaryId) => {
 const getDiaryFromDate = async (user_id, start, end) => {
   const conn = await pool.getConnection();
   try {
-    await conn.beginTransaction();
     const selectSql = `
       SELECT *
       FROM diary
       WHERE user_id = ?
-      AND created_at BETWEEN ? AND ?`;
-      const [selectRows] = await conn.query(selectSql, [ user_id, start, end ]);
-    await conn.commit();
+        AND created_at BETWEEN ? AND ?`;
+    const [selectRows] = await conn.query(selectSql, [ user_id, start, end ]);
     return selectRows;
   } catch (err) {
-    await conn.rollback();
     throw databaseError(err);
   } finally {
     await conn.release();
@@ -105,6 +115,7 @@ const getDiaryFromDate = async (user_id, start, end) => {
 
 module.exports = {
   getDiary,
+  getDiaryByUserId,
   createDiary,
   updateDiary,
   deleteDiary,
