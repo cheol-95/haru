@@ -15,8 +15,9 @@ const diaryController = require('../../controllers/diary');
 
 const router = express.Router();
 
+router.get('/haru', asyncWrap(diaryController.getHaru)); // add input validation
+
 router.get('/:id', diaryValid.getDiary, asyncWrap(diaryController.getDiary));
-router.get('/:haru', asyncWrap(diaryController.getHaru)); // add input validation
 router.post('/', diaryValid.createDiary, asyncWrap(diaryController.createDiary));
 router.put('/:id', asyncWrap(diaryController.updateDiary)); // add input validation
 router.delete('/:id', asyncWrap(diaryController.deleteDiary)); // add input validation
