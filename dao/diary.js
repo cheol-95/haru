@@ -113,7 +113,7 @@ const getDiaryFromDate = async (user_id, start, end) => {
       WHERE user_id = ?
         AND created_at BETWEEN ? AND ?`;
     const [selectRows] = await conn.query(selectSql, [ user_id, start, end ]);
-    return selectRows;
+    return selectRows.length ? selectRows[0] : null;
   } catch (err) {
     throw databaseError(err);
   } finally {

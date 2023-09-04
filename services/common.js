@@ -3,7 +3,6 @@ const diaryDao = require('../dao/diary');
 
 const getCalender = async ({ id: user_id }) => {
   const diaries = await diaryDao.getDiaryByUserId(user_id);
-  console.log('diaries: ', diaries);
   if (diaries.length === 0) {
     throw customError(404, '작성한 다이어리가 없습니다');
   }
