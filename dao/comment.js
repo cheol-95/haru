@@ -7,80 +7,100 @@ const { customError } = require('../utils/errors/custom');
 const { firebaseError } = require('../utils/errors/firebase');
 const { databaseError } = require('../utils/errors/database');
 
-// const createDiary = async (createData) => {
-//   const conn = await pool.getConnection();
-//   try {
-//     await conn.beginTransaction();
-//     const createSql = `
-//       INSERT INTO diary
-//       SET ?`;
-//     const [createRow] = await conn.query(createSql, [createData]);
-//     await conn.commit();
-//     return createRow;
-//   } catch (err) {
-//     await conn.rollback();
-//     throw databaseError(err);
-//   } finally {
-//     await conn.release();
-//   }
-// };
+const createComment = async (user_id, diaryId, comment) => {
+  const conn = await pool.getConnection();
+  try {
+    await conn.beginTransaction();
+    const createSql = `
+      INSERT INTO comment (write_user_id, diary_id, comment)
+      VALUES (?, ?, ?);`
+    const [createRow] = await conn.query(createSql, [user_id, diaryId, comment]);
+    await conn.commit();
+    return createRow;
+  } catch (err) {
+    await conn.rollback();
+    throw databaseError(err);
+  } finally {
+    await conn.release();
+  }
+};
 
-// const getDiary = async (user_id, diaryId) => {
-//   const conn = await pool.getConnection();
-//   try {
-//     await conn.beginTransaction();
-//     const selectSql = `
-//       SELECT *
-//       FROM diary
-//       WHERE user_id = ?
-//         AND id = ?`;
-//     const [selectRows] = await conn.query(selectSql, [ user_id, diaryId ]);
-//     await conn.commit();
-//     return selectRows;
-//   } catch (err) {
-//     await conn.rollback();
-//     throw databaseError(err);
-//   } finally {
-//     await conn.release();
-//   }
-// };
+const getComment = async (commentId) => {
+  const conn = await pool.getConnection();
+  try {
+    await conn.beginTransaction();
+    const selectSql = `
+      SELECT *
+      FROM comment
+      WHERE id = ?`;
+    const [selectRows] = await conn.query(selectSql, [ commentId ]);
+    await conn.commit();
+    return selectRows;
+  } catch (err) {
+    await conn.rollback();
+    throw databaseError(err);
+  } finally {
+    await conn.release();
+  }
+};
 
-// const updateDiary = async (diaryId, content) => {
-//   const conn = await pool.getConnection();
-//   try {
-//     await conn.beginTransaction();
-//     const sql = `
-//       UPDATE diary
-//       SET content = ?
-//       WHERE id = ?`;
-//     const [createRow] = await conn.query(sql, [content, diaryId]);
-//     await conn.commit();
-//     return createRow;
-//   } catch (err) {
-//     await conn.rollback();
-//     throw databaseError(err);
-//   } finally {
-//     await conn.release();
-//   }
-// };
+const updateComment = async (writeUserId, commentId, comment) => {
+  const conn = await pool.getConnection();
+  try {
+    await conn.beginTransaction();
+    const sql = `
+      UPDATE comment
+      SET comment = ?
+      WHERE id = ?
+        AND write_user_id = ?`;
+    const [createRow] = await conn.query(sql, [ comment, commentId, writeUserId ]);
+    await conn.commit();
+    return createRow;
+  } catch (err) {
+    await conn.rollback();
+    throw databaseError(err);
+  } finally {
+    await conn.release();
+  }
+};
 
-// const deleteDiary = async (diaryId) => {
-//   const conn = await pool.getConnection();
-//   try {
-//     await conn.beginTransaction();
-//     const sql = `
-//       DELETE FROM diary
-//       WHERE id = ?`;
-//     const [createRow] = await conn.query(sql, [diaryId]);
-//     await conn.commit();
-//     return createRow;
-//   } catch (err) {
-//     await conn.rollback();
-//     throw databaseError(err);
-//   } finally {
-//     await conn.release();
-//   }
-// };
+const likeComment = async (commentId, is_like) => {
+  const conn = await pool.getConnection();
+  try {
+    await conn.beginTransaction();
+    const sql = `
+      UPDATE comment
+      SET is_like = ?
+      WHERE id = ?`;
+    const [createRow] = await conn.query(sql, [ is_like, commentId ]);
+    await conn.commit();
+    return createRow;
+  } catch (err) {
+    await conn.rollback();
+    throw databaseError(err);
+  } finally {
+    await conn.release();
+  }
+};
+
+const deleteComment = async (commentId, writeUserId) => {
+  const conn = await pool.getConnection();
+  try {
+    await conn.beginTransaction();
+    const sql = `
+      DELETE FROM comment
+      WHERE id = ?
+        AND write_user_id = ?`;
+    const [createRow] = await conn.query(sql, [commentId, writeUserId]);
+    await conn.commit();
+    return createRow;
+  } catch (err) {
+    await conn.rollback();
+    throw databaseError(err);
+  } finally {
+    await conn.release();
+  }
+};
 
 
 const getCommentsOfDiary = async (diaryId) => {
@@ -103,9 +123,10 @@ const getCommentsOfDiary = async (diaryId) => {
 };
 
 module.exports = {
-  // createDiary,
-  // getDiary,
-  // updateDiary,
-  // deleteDiary,
+  createComment,
+  getComment,
+  updateComment,
+  deleteComment,
   getCommentsOfDiary,
+  likeComment,
 };

@@ -7,6 +7,6 @@ const commonController = require('../../controllers/common');
 
 const router = express.Router();
 
-router.get('/:calender', asyncWrap(commonController.getCalender));
+router.get('/calender', asyncWrap(commonController.getCalender));
 
 module.exports = router;
