@@ -22,6 +22,8 @@ router.post('/', diaryValid.createDiary, asyncWrap(diaryController.createDiary))
 router.put('/:id', asyncWrap(diaryController.updateDiary)); // add input validation
 router.delete('/:id', asyncWrap(diaryController.deleteDiary)); // add input validation
 
+router.post('/:id/like', asyncWrap(diaryController.likeDiary));
+
 // router.put('/:id/alert', idCompare, diaryValid.updateAlert, asyncWrap(diaryController.updateAlert));
 // router.put('/:id/accessToken', idCompare, diaryValid.updateAccessToken, asyncWrap(diaryController.updateAccessToken));
 // router.put('/:id/pushToken', idCompare, diaryValid.updatePushToken, asyncWrap(diaryController.updatePushToken));

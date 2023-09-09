@@ -7,7 +7,7 @@ const { customError } = require('../utils/errors/custom');
 const { firebaseError } = require('../utils/errors/firebase');
 const { databaseError } = require('../utils/errors/database');
 
-const getDiary = async (user_id, diaryId) => {
+const getDiary = async (userId, diaryId) => {
   const conn = await pool.getConnection();
   try {
     const sql = `
@@ -15,7 +15,7 @@ const getDiary = async (user_id, diaryId) => {
       FROM diary
       WHERE user_id = ?
         AND id = ?`;
-    const [selectRows] = await conn.query(sql, [ user_id, diaryId ]);
+    const [selectRows] = await conn.query(sql, [ userId, diaryId ]);
     return selectRows;
   } catch (err) {
     throw databaseError(err);
@@ -24,23 +24,30 @@ const getDiary = async (user_id, diaryId) => {
   }
 };
 
-const getDiaryByUserId = async (user_id) => {
+const getDiaryById = async (diaryId) => {
+  const conn = await pool.getConnection();
+  try {
+    const sql = `
+      SELECT *
+      FROM diary
+      WHERE id = ?`;
+    const [selectRows] = await conn.query(sql, [ diaryId ]);
+    return selectRows;
+  } catch (err) {
+    throw databaseError(err);
+  } finally {
+    await conn.release();
+  }
+};
+
+const getDiaryByUserId = async (userId) => {
   const conn = await pool.getConnection();
   try {
     const sql = `
       SELECT *
       FROM diary
       WHERE user_id = ?`;
-    const [diaryRows] = await conn.query(sql, [ user_id ]);
-    
-    // const sql_ = `SELECT @@global.time_zone;`
-    // const [diaryRows_] = await conn.query(sql_, [ user_id ]);
-    // console.log('diaryRows_: ', diaryRows_);
-    
-    // const sql__ = `SELECT @@session.time_zone;`;
-    // const [diaryRows__] = await conn.query(sql__, [ user_id ]);
-    // console.log('diaryRows__: ', diaryRows__);
-
+    const [diaryRows] = await conn.query(sql, [ userId ]);
     return diaryRows;
   } catch (err) {
     throw databaseError(err);
@@ -104,7 +111,54 @@ const deleteDiary = async (diaryId) => {
   }
 };
 
-const getDiaryFromDate = async (user_id, start, end) => {
+const likeOtherDiary = async (userId, diaryId, is_like) => {
+  const conn = await pool.getConnection();
+  try {
+    await conn.beginTransaction();
+    const sql = `
+      UPDATE user_other_diary
+      SET is_like = ?
+      WHERE diary_id = ?
+        AND user_id = ?`;
+    const [updateRow] = await conn.query(sql, [is_like, diaryId, userId]);
+    await conn.commit();
+    return updateRow;
+  } catch (err) {
+    await conn.rollback();
+    throw databaseError(err);
+  } finally {
+    await conn.release();
+  }
+};
+
+const updateLikeCount = async (diaryId) => {
+  const conn = await pool.getConnection();
+  try {
+    await conn.beginTransaction();
+    const likeCountSql = `
+      SELECT count(id) as cnt
+      FROM user_other_diary
+      WHERE diary_id = ?
+        AND is_like = true`;
+    const [likeCountSqlRow] = await conn.query(likeCountSql, [diaryId]);
+    const { cnt: likeCount } = likeCountSqlRow[0];
+
+    const sql = `
+      UPDATE diary
+      SET like_count = ?
+      WHERE id = ?`;
+    const [updateRow] = await conn.query(sql, [likeCount, diaryId]);
+    await conn.commit();
+    return updateRow;
+  } catch (err) {
+    await conn.rollback();
+    throw databaseError(err);
+  } finally {
+    await conn.release();
+  }
+};
+
+const getDiaryFromDate = async (userId, start, end) => {
   const conn = await pool.getConnection();
   try {
     const selectSql = `
@@ -112,7 +166,7 @@ const getDiaryFromDate = async (user_id, start, end) => {
       FROM diary
       WHERE user_id = ?
         AND created_at BETWEEN ? AND ?`;
-    const [selectRows] = await conn.query(selectSql, [ user_id, start, end ]);
+    const [selectRows] = await conn.query(selectSql, [ userId, start, end ]);
     return selectRows.length ? selectRows[0] : null;
   } catch (err) {
     throw databaseError(err);
@@ -124,9 +178,12 @@ const getDiaryFromDate = async (user_id, start, end) => {
 
 module.exports = {
   getDiary,
+  getDiaryById,
   getDiaryByUserId,
   createDiary,
   updateDiary,
   deleteDiary,
+  likeOtherDiary,
+  updateLikeCount,
   getDiaryFromDate,
 };

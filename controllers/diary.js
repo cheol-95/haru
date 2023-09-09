@@ -22,6 +22,11 @@ const deleteDiary = async (req, res) => {
   response(res, 200);
 }
 
+const likeDiary = async (req, res) => {
+  await diaryService.likeDiary(req.user, req.params, req.body);
+  response(res, 200);
+};
+
 const getHaru = async (req, res) => {
   const haru = await diaryService.getHaru(req.user, req.body);
   response(res, 200, { haru });
@@ -32,5 +37,6 @@ module.exports = {
   createDiary,
   updateDiary,
   deleteDiary,
+  likeDiary,
   getHaru,
 };

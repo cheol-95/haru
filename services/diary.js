@@ -12,20 +12,20 @@ const { customError } = require('../utils/errors/custom');
 
 // const { RedisEventEnum, PushEventEnum } = require('../utils/variables/enum');
 
-const ensureFirstCreateDiary = async (user_id) => {
+const ensureFirstCreateDiary = async (userId) => {
   const [start, end] = convertDateRange(new Date())
-  const diary = await diaryDao.getDiaryFromDate(user_id, start, end);
+  const diary = await diaryDao.getDiaryFromDate(userId, start, end);
   if (diary.length) {
     throw customError(400, '오늘은 이미 다이어리를 작성했어요');
   }
 }
 
-const createDiary = async ({ id: user_id }, { content }) => {
-  await ensureFirstCreateDiary(user_id);
+const createDiary = async ({ id: userId }, { content }) => {
+  await ensureFirstCreateDiary(userId);
 
-  const createRow = await diaryDao.createDiary({ user_id, content });
+  const createRow = await diaryDao.createDiary({ userId, content });
   if (createRow.affectedRows === 0) {
-    throw customError(400, '생성에 실패했습니다.');
+    throw customError(500, '생성에 실패했습니다.');
   }
   const diaryId = createRow.insertId
   return diaryId;
@@ -36,8 +36,8 @@ const getCommentsOfDiary = async (diaryId) => {
   return comments.length > 0 ? comments: [];
 }
 
-const getDiary = async ({ id: user_id }, { id: diaryId }) => {
-  const diaryRows = await diaryDao.getDiary(user_id, diaryId);
+const getDiary = async ({ id: userId }, { id: diaryId }) => {
+  const diaryRows = await diaryDao.getDiary(userId, diaryId);
   if (diaryRows.length === 0) {
     throw customError(404, '조회된 다이어리가 없습니다.');
   }
@@ -46,30 +46,43 @@ const getDiary = async ({ id: user_id }, { id: diaryId }) => {
   return diary;
 };
 
-const updateDiary = async ({ id: user_id }, { id: diaryId }, { content }) => {
-  const selectRows = await diaryDao.getDiary(user_id, diaryId);
+const updateDiary = async ({ id: userId }, { id: diaryId }, { content }) => {
+  const selectRows = await diaryDao.getDiary(userId, diaryId);
   if (selectRows.length === 0) {
     throw customError(404, '조회된 다이어리가 없습니다.');
   }
 
   const updateRow = await diaryDao.updateDiary(diaryId, content);
   if (updateRow.affectedRows === 0) {
-    throw customError(400, '업데이트에 실패했습니다.');
+    throw customError(500, '업데이트에 실패했습니다.');
   }
 
   return { id: +diaryId, content }
 };
 
-const deleteDiary = async ({ id: user_id }, { id: diaryId }) => {
-  const selectRows = await diaryDao.getDiary(user_id, diaryId);
+const deleteDiary = async ({ id: userId }, { id: diaryId }) => {
+  const selectRows = await diaryDao.getDiary(userId, diaryId);
   if (selectRows.length === 0) {
     throw customError(404, '조회된 다이어리가 없습니다.');
   }
 
   const deleteRows = await diaryDao.deleteDiary(diaryId);
   if (deleteRows.length === 0) {
+    throw customError(500, '삭제 실패했습니다.');
+  }
+};
+
+const likeDiary = async ({ id: userId }, { id: diaryId }, { is_like }) => {
+  const diaryRows = await diaryDao.getDiaryById(diaryId); // 다이어리 삭제 규정 검토해야함
+  if (diaryRows.length === 0) {
     throw customError(404, '조회된 다이어리가 없습니다.');
   }
+
+  const updateRow = await diaryDao.likeOtherDiary(userId, diaryId, is_like);
+  if (updateRow.affectedRows === 0) {
+    throw customError(500, '업데이트에 실패했습니다.');
+  }
+  await diaryDao.updateLikeCount(diaryId);
 };
 
 const convertDateRange = (date) => {
@@ -82,15 +95,20 @@ const convertDateRange = (date) => {
   return [start, end];
 }
 
-const getHaru = async ({ id: user_id }, { date }) => {
+const getHaru = async ({ id: userId }, { date }) => {
   const today = new Date(date);
   const yesterday = subDays(today, 1);
   
-  const [todayDiary, yesterdayDiary, todayOtherDiary, yesterdayOtherDiary] = await Promise.all([
-    diaryDao.getDiaryFromDate(user_id, ...convertDateRange(today)),
-    diaryDao.getDiaryFromDate(user_id, ...convertDateRange(yesterday)),
-    otherDiaryDao.getOtherDiariesFromDate(user_id, ...convertDateRange(today)),
-    otherDiaryDao.getOtherDiariesFromDate(user_id, ...convertDateRange(yesterday)),
+  const [
+    todayDiary,
+    yesterdayDiary,
+    todayOtherDiary,
+    yesterdayOtherDiary
+  ] = await Promise.all([
+    diaryDao.getDiaryFromDate(userId, ...convertDateRange(today)),
+    diaryDao.getDiaryFromDate(userId, ...convertDateRange(yesterday)),
+    otherDiaryDao.getOtherDiariesFromDate(userId, ...convertDateRange(today)),
+    otherDiaryDao.getOtherDiariesFromDate(userId, ...convertDateRange(yesterday)),
   ])
 
   return {
@@ -110,5 +128,6 @@ module.exports = {
   getDiary,
   updateDiary,
   deleteDiary,
+  likeDiary,
   getHaru,
 };
